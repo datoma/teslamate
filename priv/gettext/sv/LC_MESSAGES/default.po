@@ -14,7 +14,7 @@ msgstr ""
 #, elixir-format
 #: lib/teslamate_web/live/car_live/summary.html.leex:95
 msgid "Status"
-msgstr "Status"
+msgstr ""
 
 #, elixir-format
 #: lib/teslamate_web/live/car_live/summary.html.leex:227
@@ -49,12 +49,12 @@ msgstr "kört"
 #, elixir-format
 #: lib/teslamate_web/live/car_live/summary.ex:130
 msgid "offline"
-msgstr "offline"
+msgstr ""
 
 #, elixir-format
 #: lib/teslamate_web/live/car_live/summary.ex:129
 msgid "online"
-msgstr "online"
+msgstr ""
 
 #, elixir-format
 #: lib/teslamate_web/live/car_live/summary.ex:127
@@ -221,12 +221,12 @@ msgid "Driver present"
 msgstr "Förare närvarande"
 
 #, elixir-format
-#: lib/teslamate_web/live/car_live/summary.html.leex:298
+#: lib/teslamate_web/live/car_live/summary.html.leex:297
 msgid "cancel sleep attempt"
 msgstr "avbryt försök att vila"
 
 #, elixir-format
-#: lib/teslamate_web/live/car_live/summary.html.leex:293
+#: lib/teslamate_web/live/car_live/summary.html.leex:292
 msgid "try to sleep"
 msgstr "försök att vila"
 
@@ -320,11 +320,6 @@ msgstr "Utetemperatur"
 #: lib/teslamate_web/live/settings_live/index.html.leex:270
 msgid "Version"
 msgstr ""
-
-#, elixir-format
-#: lib/teslamate_web/live/car_live/summary.html.leex:74
-msgid "Software Update available"
-msgstr "Mjukvaruuppdatering tillgänglig"
 
 #, elixir-format
 #: lib/teslamate_web/live/car_live/summary.html.leex:79
@@ -438,7 +433,7 @@ msgstr "Det gick inte att hämta data från OpenStreetMap. Vänligen försök ig
 #, elixir-format
 #: lib/teslamate_web/live/import_live/index.html.leex:4
 msgid "TeslaFi Import"
-msgstr "TeslaFi import"
+msgstr ""
 
 #, elixir-format
 #: lib/teslamate_web/live/import_live/index.html.leex:10
@@ -508,7 +503,7 @@ msgstr "Dörrar öppna"
 #: lib/teslamate_web/live/charge_live/cost.html.leex:111
 #: lib/teslamate_web/live/geofence_live/form.html.leex:66
 msgid "Per kWh"
-msgstr "Per kWh"
+msgstr ""
 
 #, elixir-format
 #: lib/teslamate_web/live/charge_live/cost.html.leex:110
@@ -577,4 +572,9 @@ msgstr "Bakluckan är öppen"
 #: lib/teslamate_web/live/charge_live/cost.html.leex:112
 #: lib/teslamate_web/live/geofence_live/form.html.leex:66
 msgid "Per Minute"
-msgstr ""
+msgstr "Per Minut"
+
+#, elixir-format, fuzzy
+#: lib/teslamate_web/live/car_live/summary.html.leex:74
+msgid "Software Update available (%{version})"
+msgstr "Mjukvaruuppdatering tillgänglig (%{version})"

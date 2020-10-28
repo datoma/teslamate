@@ -8,16 +8,15 @@ jobs:
 
     strategy:
       matrix:
-        elixir: ["1.10.4"]
         include:
-          - elixir: "1.10.4"
+          - elixir: "1.11.1"
             otp: "23.x"
 
     runs-on: ubuntu-18.04
 
     services:
       db:
-        image: postgres:12
+        image: postgres:13
         ports: ["5432:5432"]
         env:
           POSTGRES_PASSWORD: postgres
@@ -29,7 +28,7 @@ jobs:
 
     env:
       MIX_ENV: test
-      ELIXIR_ASSERT_TIMEOUT: 350
+      ELIXIR_ASSERT_TIMEOUT: 1000
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:

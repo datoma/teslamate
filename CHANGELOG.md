@@ -1,6 +1,57 @@
 # Changelog
 
-## [1.20.0-dev] - unreleased
+## 1.21.0-dev
+
+### Enhancements
+
+#### Dashboards
+
+- New dashboard for reporting to Dutch tax ([#998](https://github.com/adriankumpf/teslamate/pull/998) by [roadrash2108](https://github.com/roadrash2108))
+- Locations: Add panel to see when an address was last visited
+
+#### Other
+
+- Optimize TeslaFi CSV file import: reduced memory usage and increased performance
+- Bump Elixir to v1.11
+- Logs: Print the date as well, next to the time
+
+#### Documentation
+
+- Fix version info on development guide & minor spelling fix ([#994](https://github.com/adriankumpf/teslamate/pull/994) by [techgaun](https://github.com/techgaun))
+- Update backup_restore.md ([#1027](https://github.com/adriankumpf/teslamate/pull/1027) by [pihomeserver](https://github.com/pihomeserver))
+
+## [1.20.1] - 2020-10-24
+
+### Enhancements
+
+#### Dashboards
+
+- Charge Level: Always show 0% and 100% when state of charge is shown in a diagram ([#980](https://github.com/adriankumpf/teslamate/pull/980) by [mbertheau](https://github.com/mbertheau))
+- Charging Stats: Titles/labels now match pie-charts ([#998](https://github.com/adriankumpf/teslamate/pull/998) by [roadrash2108](https://github.com/roadrash2108))
+- Drive Details: Increase width of odometer panel
+- Efficiency: Set a fixed max value and use LCD gauge
+- Overview: Fix overlapping timestamps in discrete map ([#995](https://github.com/adriankumpf/teslamate/pull/995) by [pmboothby](https://github.com/pmboothby))
+- Fix overlapping timestamps in trip and states dashboard
+- Statistics: Add links to other dashboards ([#973](https://github.com/adriankumpf/teslamate/pull/973) by [DrMichael](https://github.com/DrMichael))
+
+#### Translations
+
+- Update Norwegian translation ([#996](https://github.com/adriankumpf/teslamate/pull/996) and [#1007](https://github.com/adriankumpf/teslamate/pull/1007) by [spacecosmos](https://github.com/spacecosmos))
+- Update Swedish translation ([#1029](https://github.com/adriankumpf/teslamate/pull/1029) by [tobiasehlert](https://github.com/tobiasehlert))
+
+#### Other
+
+- Display update version in the homescreen update tooltip ([#976](https://github.com/adriankumpf/teslamate/pull/976) by [ayonix](https://github.com/ayonix))
+- Customize Grafana home screen logo ([#1004](https://github.com/adriankumpf/teslamate/pull/1004) by [gimmespam](https://github.com/gimmespam))
+- Bump Grafana to 7.2.1
+
+### Bug Fixes
+
+- Fix tooltips in car overview being hidden by .card ([#975](https://github.com/adriankumpf/teslamate/pull/975) by [ayonix](https://github.com/ayonix))
+- Make Statistics dashboard compatible with older versions of Postgres
+- Open Statistics dashboard with browser time zone when coming from the TeslaMate UI
+
+## [1.20.0] - 2020-10-04
 
 ### Enhancements
 
@@ -19,6 +70,7 @@
 - Overview: Add 'total energy added' to chart ([#690](https://github.com/adriankumpf/teslamate/pull/690) by [Dulanic](https://github.com/Dulanic))
 - Overview: Hide stale temperatures
 - Overview: Show most recent driver temp setting while driving
+- Overview: Add efficiency ([#970](https://github.com/adriankumpf/teslamate/pull/970) by [DrMichael](https://github.com/DrMichael))
 - States: Display all states names ([#755](https://github.com/adriankumpf/teslamate/pull/755) by [DrMichael](https://github.com/DrMichael))
 - Updates: Add links to release notes ([#797](https://github.com/adriankumpf/teslamate/pull/797) and [#823](https://github.com/adriankumpf/teslamate/pull/823) by [pmboothby](https://github.com/pmboothby))
 - Updates: Show average range and number of chargers per software version to identify if an update had a bigger than expected impact on range ([#731](https://github.com/adriankumpf/teslamate/pull/731) and [#762](https://github.com/adriankumpf/teslamate/pull/762) by [Dulanic](https://github.com/Dulanic))
@@ -31,20 +83,6 @@
 ##### Note
 
 - The dashboards require **Grafana 7**. Make sure you are running the latest version of Grafana if you are not using the Docker installation.
-- The time zone displayed at the top of the new "Statistics" dashboard is the one used by Postgres to figure out the start and end dates. To change it to your local time zone set the `TZ` environment variable using the [TZ database name](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones):
-
-  ```yaml
-  database:
-    image: postgres:12
-    restart: always
-    environment:
-      - POSTGRES_USER=teslamate
-      - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=teslamate
-      - TZ=Europe/Berlin # your local time zone
-    volumes:
-      - teslamate-db:/var/lib/postgresql/data
-  ```
 
 #### Translations
 
@@ -74,6 +112,8 @@
 - Change default sleep requirements to not require the car to be locked
 - Use GitHub Actions to build docker images and publish them to DockerHub
 - For those who want to help **testing the latest development version**: the docker images with the `edge` tag (`teslamate/teslamate:edge` and `teslamate/grafana:edge`) are for you.
+- Allow negative cost_per_unit for geofences ([#968](https://github.com/adriankumpf/teslamate/pull/968) by [ayonix](https://github.com/ayonix))
+- Speed up parsing of CSV files (data import)
 
 ### Bug Fixes
 
@@ -1044,7 +1084,8 @@ New users need to sign in via the web interface.
 
 ## [1.0.0] - 2019-07-25
 
-[1.20.0-dev]: https://github.com/adriankumpf/teslamate/compare/v1.19.4...HEAD
+[1.20.1]: https://github.com/adriankumpf/teslamate/compare/v1.20.0...v1.20.1
+[1.20.0]: https://github.com/adriankumpf/teslamate/compare/v1.19.4...v1.20.0
 [1.19.4]: https://github.com/adriankumpf/teslamate/compare/v1.19.3...v1.19.4
 [1.19.3]: https://github.com/adriankumpf/teslamate/compare/v1.19.2...v1.19.3
 [1.19.2]: https://github.com/adriankumpf/teslamate/compare/v1.19.1...v1.19.2

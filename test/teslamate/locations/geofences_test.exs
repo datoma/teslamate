@@ -29,7 +29,6 @@ defmodule TeslaMate.LocationsGeofencesTest do
     longitude: nil,
     radius: nil,
     billing_type: :per_hour,
-    cost_per_unit: -0.01,
     session_fee: -0.01
   }
 
@@ -67,7 +66,6 @@ defmodule TeslaMate.LocationsGeofencesTest do
                name: ["can't be blank"],
                radius: ["can't be blank"],
                billing_type: ["is invalid"],
-               cost_per_unit: ["must be greater than or equal to 0"],
                session_fee: ["must be greater than or equal to 0"]
              }
 
@@ -140,7 +138,7 @@ defmodule TeslaMate.LocationsGeofencesTest do
     test "update_geofence/2 with valid data updates the geofence" do
       geofence = geofence_fixture()
 
-      assert {:ok, %GeoFence{id: id} = geofence} =
+      assert {:ok, %GeoFence{id: _id} = geofence} =
                Locations.update_geofence(geofence, @update_attrs)
 
       assert geofence.name == "bar"
@@ -383,12 +381,12 @@ defmodule TeslaMate.LocationsGeofencesTest do
 
       # decrease radius of geo-fences
 
-      assert {:ok, straße} = Locations.update_geofence(straße, %{radius: 20})
+      assert {:ok, _straße} = Locations.update_geofence(straße, %{radius: 20})
       assert %ChargingProcess{geofence_id: ^t_id} = Repo.get!(ChargingProcess, c0_id)
       assert %ChargingProcess{geofence_id: ^t_id} = Repo.get!(ChargingProcess, c1_id)
       assert %Drive{start_geofence_id: ^t_id, end_geofence_id: ^t_id} = Repo.get!(Drive, d0_id)
 
-      assert {:ok, tiergarten} = Locations.update_geofence(tiergarten, %{radius: 20})
+      assert {:ok, _tiergarten} = Locations.update_geofence(tiergarten, %{radius: 20})
       assert %ChargingProcess{geofence_id: nil} = Repo.get!(ChargingProcess, c0_id)
       assert %ChargingProcess{geofence_id: nil} = Repo.get!(ChargingProcess, c1_id)
       assert %Drive{start_geofence_id: nil, end_geofence_id: nil} = Repo.get!(Drive, d0_id)
@@ -421,7 +419,7 @@ defmodule TeslaMate.LocationsGeofencesTest do
 
       assert %ChargingProcess{geofence_id: ^id} = Repo.get!(ChargingProcess, cproc_id)
 
-      assert %Drive{id: drive_id, start_geofence_id: ^id, end_geofence_id: ^id} =
+      assert %Drive{id: _drive_id, start_geofence_id: ^id, end_geofence_id: ^id} =
                create_drive(car, position, position)
     end
   end
