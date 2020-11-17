@@ -50,6 +50,7 @@ pipeline {
     registry = 'registry/repository'
     registryCredential = 'secret'
     dockerImage = ''
-    imageLine = 'debian:latest'
+    //imageLine = 'debian:latest'
+    imageLine = 'registry/repository:4'
   }
 }
