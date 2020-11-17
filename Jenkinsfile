@@ -32,6 +32,8 @@ pipeline {
         stage('Test') {
           steps {
             //anchore 'registry/repository:4'
+            def imageLine = 'debian:latest'
+            writeFile file: 'anchore_images', text: imageLine
             anchore name: 'anchore_images'
           }
         }
@@ -50,8 +52,5 @@ pipeline {
     registry = 'registry/repository'
     registryCredential = 'secret'
     dockerImage = ''
-    def imageLine = 'debian:latest'
-    writeFile file: 'anchore_images', text: imageLine
-   
   }
 }
