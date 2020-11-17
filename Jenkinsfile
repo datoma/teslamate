@@ -31,7 +31,7 @@ pipeline {
 
         stage('Test') {
           steps {
-            anchore 'registry + ":$BUILD_NUMBER"'
+            anchore 'registry/repository:4'
           }
         }
 
