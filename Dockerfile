@@ -1,4 +1,4 @@
-FROM elixir:1.11.2-alpine AS builder
+FROM elixir:1.11.3-alpine AS builder
 
 RUN apk add --update --no-cache nodejs npm git build-base && \
     mix local.rebar --force && \
@@ -34,7 +34,7 @@ RUN mkdir -p /opt/built && \
 
 ########################################################################
 
-FROM alpine:3.12.3 AS app
+FROM alpine:3.13.0 AS app
 
 ENV LANG=C.UTF-8 \
     SRTM_CACHE=/opt/app/.srtm_cache \
