@@ -33,7 +33,7 @@ pipeline {
 
     stage('Clone') {
       steps {
-        git(url: '${GIT_URL}', branch: '${GIT_BRANCH}', credentialsId: '${GIT_CREDENTIALS}')
+        git(url: "${GIT_URL}", branch: "${GIT_BRANCH}", credentialsId: "${GIT_CREDENTIALS}")
       }
     }
 
