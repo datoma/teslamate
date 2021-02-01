@@ -11,6 +11,14 @@ pipeline {
 
   agent any
   stages {
+    stage ("prepare") {
+      steps {
+        script {
+            currentBuild.displayName = "#${BUILD_NUMBER} (DockerTag: ${DOCKER_IMAGE_TAG} - Branch: ${env.GIT_BRANCH})"
+            sh 'printenv'
+        }
+      }
+    }
     //stage ("Prompt for input") {
     //  steps {
     //    script {
