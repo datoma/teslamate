@@ -70,11 +70,9 @@ pipeline {
 
     stage('Deploy and Test the latest image') {
       parallel {
-         stage('Trivy') {
+        stage('Trivy') {
           steps {
-            script {
-              dockerHubImageLatest.run("--name trivy-client --rm -it -v /var/run/docker.sock:/var/run/docker.sock:ro datoma/trivy-server:latest trivy client --remote https://trivy.blackboards.de ${DOCKERHUB_IMAGE_NAME}:latest")
-            }
+            sh 'docker run --name trivy-client --rm -i -v /var/run/docker.sock:/var/run/docker.sock:ro datoma/trivy-server:latest trivy client --remote https://trivy.blackboards.de ${DOCKERHUB_IMAGE_NAME}:latest'
           }
         }
         stage('Deploy image with latest to Dockerhub') {
@@ -100,11 +98,9 @@ pipeline {
 
     stage('Deploy and Test the tagged image') {
       parallel {
-         stage('Trivy') {
+        stage('Trivy') {
           steps {
-            script {
-              dockerHubImageLatest.run("--name trivy-client --rm -it -v /var/run/docker.sock:/var/run/docker.sock:ro datoma/trivy-server:latest trivy client --remote https://trivy.blackboards.de --ignore-unfixed --exit-code 1 --severity CRITICAL,HIGH,MEDIUM ${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
-            }
+            sh 'docker run --name trivy-client --rm -i -v /var/run/docker.sock:/var/run/docker.sock:ro datoma/trivy-server:latest trivy client --remote https://trivy.blackboards.de --ignore-unfixed --exit-code 1 --severity CRITICAL,HIGH,MEDIUM ${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG}'
           }
         }
         stage('Deploy image with tag to Dockerhub') {
