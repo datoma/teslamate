@@ -133,6 +133,8 @@ pipeline {
     always {
       sh "docker rmi ${DOCKERHUB_IMAGE_NAME}:latest"
       sh "docker rmi ${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+      sh "docker rmi registry.hub.docker.com/${DOCKERHUB_IMAGE_NAME}:latest"
+      sh "docker rmi registry.hub.docker.com/${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG}""
       sh "docker rmi ${ARTIFACTORY_IMAGE_NAME}:latest"
       sh "docker rmi ${ARTIFACTORY_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
     }
