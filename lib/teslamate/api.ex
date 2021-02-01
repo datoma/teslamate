@@ -79,6 +79,13 @@ defmodule TeslaMate.Api do
     end
   end
 
+  def sign_out(name \\ @name) do
+    true = :ets.delete(name, :auth)
+    :ok
+  rescue
+    _ in ArgumentError -> {:error, :not_signed_in}
+  end
+
   # Callbacks
 
   @impl true
@@ -115,7 +122,6 @@ defmodule TeslaMate.Api do
   @impl true
   def handle_call({:sign_in, args}, _, state) do
     case args do
-      [%Credentials{use_legacy_auth: true} = c] -> Auth.legacy_login(c.email, c.password)
       [%Credentials{} = c] -> Auth.login(c.email, c.password)
       [device_id, passcode, ctx] -> Auth.login(device_id, passcode, ctx)
     end
