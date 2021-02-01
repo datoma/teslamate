@@ -90,7 +90,7 @@ pipeline {
           steps {
             script {
               docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-                dockerHubImageLatest.push()
+                dockerHubImagetag.push()
               }
             }
           }
@@ -98,7 +98,6 @@ pipeline {
         stage('Deploy image with latest to Artifactory') {
           steps {
             script {
-                echo "Deploy image with latest to Artifactory"
                 docker.withRegistry('https://datoma.jfrog.io/artifactory', 'ArtifactoryDockerhub') {
                 artifactoryImageLatest.push()
               }
@@ -108,9 +107,8 @@ pipeline {
         stage('Deploy image with tag to Artifactory') {
           steps {
             script {
-                echo "Deploy image with tag to Artifactory"
                 docker.withRegistry('https://datoma.jfrog.io/artifactory', 'ArtifactoryDockerhub') {
-                artifactoryImageLatest.push()
+                artifactoryImageTag.push()
               }
             }
           }
