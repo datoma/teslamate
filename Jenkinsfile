@@ -34,7 +34,7 @@ pipeline {
       }
     }
 
-    stage('Building our image') {
+    stage('Building the image') {
       steps {
         script {
           dockerHubImageLatest = docker.build("${DOCKERHUB_IMAGE_NAME}:latest")
@@ -42,7 +42,7 @@ pipeline {
       }
     }
     
-    stage('Tagging our image') {
+    stage('Tagging the image') {
       parallel {
         stage('push Dockerhub Tag') {
           steps {
@@ -68,7 +68,7 @@ pipeline {
       }
     }
 
-    stage('Test') {
+    stage('Trivy and dockle tests') {
       parallel {
         stage('Trivy Tag and latest') {
           steps {
