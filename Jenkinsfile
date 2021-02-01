@@ -77,7 +77,7 @@ pipeline {
                 trivy_tag = sh(returnStdout: true, script: 'docker run --name trivy-client --rm -i -v /var/run/docker.sock:/var/run/docker.sock:ro datoma/trivy-server:latest trivy client --remote https://trivy.blackboards.de --ignore-unfixed --exit-code 1 --severity CRITICAL,HIGH,MEDIUM ${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG}')
               }
               echo "TRIVY latest: ${trivy_latest}"
-              writeFile(file: 'trivy-latest.txt', text: "${trivy_latest}")              
+              writeFile(file: 'trivy-latest.txt', text: "${trivy_latest}")
               echo "TRIVY Tag: ${trivy_tag}"
               writeFile(file: 'trivy-tag.txt', text: "${trivy_tag}")
           }
@@ -88,7 +88,7 @@ pipeline {
                 dockle_tag = sh(returnStdout: true, script: 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock datoma/dockle:latest ${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG}')
               }
               echo "Dockle tag: ${dockle_tag}"
-              writeFile(file: 'dockle_tag.txt', text: "${dockle_tag}")   
+              writeFile(file: 'dockle_tag.txt', text: "${dockle_tag}")
           }
         }
         stage('hadolint Tag') {
@@ -97,7 +97,7 @@ pipeline {
                 dockle_tag = sh(returnStdout: true, script: 'docker run --rm -v `pwd`/Dockerfile:/Dockerfile hadolint/hadolint hadolint Dockerfile')
               }
               echo "hadolint tag: ${hadolint_tag}"
-              writeFile(file: 'hadolint_tag.txt', text: "${hadolint_tag}")   
+              writeFile(file: 'hadolint_tag.txt', text: "${hadolint_tag}")
           }
         }
 
