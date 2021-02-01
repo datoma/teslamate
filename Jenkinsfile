@@ -68,12 +68,12 @@ pipeline {
       }
     }
 
-    stage('Deploy and Test our image') {
+    stage('Deploy and Test the latest image') {
       parallel {
          stage('Trivy') {
           steps {
             script {
-              dockerHubImageLatest.run("--name trivy-client --rm -it -v /var/run/docker.sock:/var/run/docker.sock:ro datoma/trivy-server:latest trivy client --remote https://trivy.blackboards.de --ignore-unfixed --exit-code 1 --severity CRITICAL,HIGH,MEDIUM ${DOCKERHUB_IMAGE_NAME}:latest")
+              dockerHubImageLatest.run("--name trivy-client --rm -it -v /var/run/docker.sock:/var/run/docker.sock:ro datoma/trivy-server:latest trivy client --remote https://trivy.blackboards.de ${DOCKERHUB_IMAGE_NAME}:latest")
             }
           }
         }
@@ -86,20 +86,32 @@ pipeline {
             }
           }
         }
-        stage('Deploy image with tag to Dockerhub') {
-          steps {
-            script {
-              docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-                dockerHubImagetag.push()
-              }
-            }
-          }
-        }
         stage('Deploy image with latest to Artifactory') {
           steps {
             script {
                 docker.withRegistry('https://datoma.jfrog.io/artifactory', 'ArtifactoryDockerhub') {
                 artifactoryImageLatest.push()
+              }
+            }
+          }
+        }
+      }
+    }
+
+    stage('Deploy and Test the tagged image') {
+      parallel {
+         stage('Trivy') {
+          steps {
+            script {
+              dockerHubImageLatest.run("--name trivy-client --rm -it -v /var/run/docker.sock:/var/run/docker.sock:ro datoma/trivy-server:latest trivy client --remote https://trivy.blackboards.de --ignore-unfixed --exit-code 1 --severity CRITICAL,HIGH,MEDIUM ${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
+            }
+          }
+        }
+        stage('Deploy image with tag to Dockerhub') {
+          steps {
+            script {
+              docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
+                dockerHubImagetag.push()
               }
             }
           }
