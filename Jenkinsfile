@@ -7,6 +7,9 @@ pipeline {
     artifactoryImageLatest = ''
     artifactoryImageTag = ''
     imageLine = 'datoma/teslamate:latest'
+    GIT_URL = 'https://github.com/datoma/teslamate.git'
+    GIT_BRANCH = 'master'
+    GIT_CREDENTIALS = 'Github'
   }
 
   agent any
@@ -30,7 +33,7 @@ pipeline {
 
     stage('Clone') {
       steps {
-        git(url: 'https://github.com/datoma/teslamate.git', branch: 'master')
+        git(url: '${GIT_URL}', branch: '${GIT_BRANCH}', credentialsId: '${GIT_CREDENTIALS}')
       }
     }
 
@@ -94,10 +97,12 @@ pipeline {
         stage('hadolint Tag') {
           steps {
             script {
-                dockle_tag = sh(returnStdout: true, script: 'docker run --rm -v `pwd`/Dockerfile:/Dockerfile hadolint/hadolint hadolint Dockerfile')
+              try {
+                sh 'docker run --rm -i hadolint/hadolint < Dockerfile | tee hadolint_tag.txt'
+              } catch (err) {
+                echo err.getMessage()
               }
-              echo "hadolint tag: ${hadolint_tag}"
-              writeFile(file: 'hadolint_tag.txt', text: "${hadolint_tag}")
+            }
           }
         }
 
