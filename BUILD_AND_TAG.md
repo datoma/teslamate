@@ -8,16 +8,15 @@
     git push
 
 ## docker build
-    docker build -t teslamate .
+    docker build -t datoma/teslamate:latest .
 
 ## push to dockerhub
-    docker tag teslamate:latest datoma/teslamate:latest
-    docker tag teslamate:latest datoma/teslamate:1.21
+    docker tag datoma/teslamate:latest datoma/teslamate:1.21
     docker push datoma/teslamate:1.21
     docker push datoma/teslamate:latest
 
 ## push to artifactory
-    docker tag teslamate:latest datoma.jfrog.io/docker-local/teslamate:latest
-    docker tag teslamate:latest datoma.jfrog.io/docker-local/teslamate:1.21
+    docker tag datoma/teslamate:latest datoma.jfrog.io/docker-local/teslamate:latest
+    docker tag datoma/teslamate:latest datoma.jfrog.io/docker-local/teslamate:1.21
     docker push datoma.jfrog.io/docker-local/teslamate:1.21
     docker push datoma.jfrog.io/docker-local/teslamate:latest

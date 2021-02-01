@@ -1,4 +1,12 @@
 pipeline {
+  environment {
+    registry = 'registry/repository'
+    registryCredential = 'secret'
+    dockerImage = ''
+    //imageLine = 'debian:latest'
+    imageLine = 'registry/repository:4'
+  }
+
   agent any
   stages {
     stage('Clone') {
@@ -10,7 +18,7 @@ pipeline {
     stage('Building our image') {
       steps {
         script {
-          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+          dockerImage = docker.build("datoma/teslamate:latest") #+ ":$BUILD_NUMBER"
         }
 
       }
@@ -21,7 +29,7 @@ pipeline {
         stage('Deploy our image') {
           steps {
             script {
-              docker.withRegistry( '', registryCredential ) {
+              docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
                 dockerImage.push()
               }
             }
@@ -41,16 +49,8 @@ pipeline {
 
     stage('Cleaning up') {
       steps {
-        sh "docker rmi $registry:$BUILD_NUMBER"
+        sh "docker rmi datoma/teslamate:latest"
       }
     }
-
-  }
-  environment {
-    registry = 'registry/repository'
-    registryCredential = 'secret'
-    dockerImage = ''
-    //imageLine = 'debian:latest'
-    imageLine = 'registry/repository:4'
   }
 }
