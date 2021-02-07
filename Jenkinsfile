@@ -128,14 +128,16 @@ pipeline {
               writeFile(file: 'dockle_tag.txt', text: "${dockle_tag}")
           }
         }
-        stage('anchore') {
-          steps {
-            script {
-                sh 'echo "${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" > anchore_images'
-                anchore engineCredentialsId: "${ANCHORE_CREDENTIALS}", engineRetries: '600', engineurl: "${ANCHORE_URL}", name: 'anchore_images'
-              }
-          }
-        }
+        //stage('anchore') {
+        //  steps {
+        //    script {
+        //        sh 'echo "${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" > anchore_images'
+        //        sh 'cat anchore_images'
+        //        sh 'docker images | grep teslamate'
+        //        anchore engineCredentialsId: "${ANCHORE_CREDENTIALS}", engineRetries: '600', engineurl: "${ANCHORE_URL}", name: 'anchore_images'
+        //      }
+        //  }
+        //}
         stage('hadolint Tag') {
           steps {
             script {
@@ -220,6 +222,20 @@ pipeline {
         }
       }
     }
+    
+    stage('Anchore Test') {
+      parallel {
+        stage('anchore') {
+          steps {
+            script {
+                sh 'echo "${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" > anchore_images'
+                anchore engineCredentialsId: "${ANCHORE_CREDENTIALS}", engineRetries: '600', engineurl: "${ANCHORE_URL}", name: 'anchore_images'
+              }
+          }
+        }
+      }
+    }
+    
   }
 
   post {
