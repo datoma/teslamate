@@ -73,6 +73,8 @@ tesla:
   scan_interval: 3600
 
 sensor: !include sensor.yaml
+
+binary_sensor: !include binary_sensor.yaml
 ```
 
 ### known_devices.yaml (define a tracker for Tesla)
@@ -94,16 +96,6 @@ tesla_location:
 ```yml title="sensor.yaml"
  - platform: template
    sensors:
-    tesla_park_brake:
-      friendly_name: Parking Brake
-      icon_template: mdi:car-brake-parking
-      value_template: >-
-       {% if is_state('sensor.tesla_shift_state', 'P') %}
-         true
-       {% else %}
-         false
-       {% endif %}
-
     tesla_est_battery_range_mi:
       friendly_name: Estimated Range (mi)
       unit_of_measurement: mi
@@ -159,22 +151,13 @@ tesla_location:
  - platform: mqtt
    name: tesla_since
    state_topic: "teslamate/cars/1/since"
+   device_class: timestamp
    icon: mdi:clock-outline
-
- - platform: mqtt
-   name: tesla_healthy
-   state_topic: "teslamate/cars/1/healthy"
-   icon: mdi:heart-pulse
 
  - platform: mqtt
    name: tesla_version
    state_topic: "teslamate/cars/1/version"
    icon: mdi:alphabetical
-
- - platform: mqtt
-   name: tesla_update_available
-   state_topic: "teslamate/cars/1/update_available"
-   icon: mdi:alarm
 
  - platform: mqtt
    name: tesla_update_version
@@ -212,11 +195,13 @@ tesla_location:
  - platform: mqtt
    name: tesla_latitude
    state_topic: "teslamate/cars/1/latitude"
+   unit_of_measurement: °
    icon: mdi:crosshairs-gps
 
  - platform: mqtt
    name: tesla_longitude
    state_topic: "teslamate/cars/1/longitude"
+   unit_of_measurement: °
    icon: mdi:crosshairs-gps
 
  - platform: mqtt
@@ -225,78 +210,43 @@ tesla_location:
    icon: mdi:car-shift-pattern
 
  - platform: mqtt
+   name: tesla_power
+   state_topic: "teslamate/cars/1/power"
+   device_class: power
+   unit_of_measurement: W
+   icon: mdi:electricity
+
+ - platform: mqtt
    name: tesla_speed
    state_topic: "teslamate/cars/1/speed"
-   unit_of_measurement: kph
+   unit_of_measurement: "km/h"
    icon: mdi:speedometer
 
  - platform: mqtt
    name: tesla_heading
    state_topic: "teslamate/cars/1/heading"
+   unit_of_measurement: °
    icon: mdi:compass
 
  - platform: mqtt
    name: tesla_elevation
    state_topic: "teslamate/cars/1/elevation"
+   unit_of_measurement: m
    icon: mdi:image-filter-hdr
-
-
- - platform: mqtt
-   name: tesla_locked
-   state_topic: "teslamate/cars/1/locked"
-   icon: mdi:lock
-
- - platform: mqtt
-   name: tesla_sentry_mode
-   state_topic: "teslamate/cars/1/sentry_mode"
-   icon: mdi:cctv
-
- - platform: mqtt
-   name: tesla_windows_open
-   state_topic: "teslamate/cars/1/windows_open"
-   icon: mdi:car-door
-
- - platform: mqtt
-   name: tesla_doors_open
-   state_topic: "teslamate/cars/1/doors_open"
-   icon: mdi:car-door
-
- - platform: mqtt
-   name: tesla_trunk_open
-   state_topic: "teslamate/cars/1/trunk_open"
-   icon: mdi:car-side
-
- - platform: mqtt
-   name: tesla_frunk_open
-   state_topic: "teslamate/cars/1/frunk_open"
-   icon: mdi:car-side
-
- - platform: mqtt
-   name: tesla_is_user_present
-   state_topic: "teslamate/cars/1/is_user_present"
-   icon: mdi:human-greeting
-
- - platform: mqtt
-   name: tesla_is_climate_on
-   state_topic: "teslamate/cars/1/is_climate_on"
-   icon: mdi:fan
 
  - platform: mqtt
    name: tesla_inside_temp
    state_topic: "teslamate/cars/1/inside_temp"
+   device_class: temperature
    unit_of_measurement: °C
    icon: mdi:thermometer-lines
 
  - platform: mqtt
    name: tesla_outside_temp
    state_topic: "teslamate/cars/1/outside_temp"
+   device_class: temperature
    unit_of_measurement: °C
    icon: mdi:thermometer-lines
-
- - platform: mqtt
-   name: tesla_is_preconditioning
-   state_topic: "teslamate/cars/1/is_preconditioning"
-   icon: mdi:fan
 
  - platform: mqtt
    name: tesla_odometer
@@ -307,24 +257,25 @@ tesla_location:
  - platform: mqtt
    name: tesla_est_battery_range_km
    state_topic: "teslamate/cars/1/est_battery_range_km"
-   unit_of_measurement: "km"
+   unit_of_measurement: km
    icon: mdi:gauge
 
  - platform: mqtt
    name: tesla_rated_battery_range_km
    state_topic: "teslamate/cars/1/rated_battery_range_km"
-   unit_of_measurement: "km"
+   unit_of_measurement: km
    icon: mdi:gauge
 
  - platform: mqtt
    name: tesla_ideal_battery_range_km
    state_topic: "teslamate/cars/1/ideal_battery_range_km"
-   unit_of_measurement: "km"
+   unit_of_measurement: km
    icon: mdi:gauge
 
  - platform: mqtt
    name: tesla_battery_level
    state_topic: "teslamate/cars/1/battery_level"
+   device_class: battery
    unit_of_measurement: "%"
    icon: mdi:battery-80
    
@@ -335,14 +286,10 @@ tesla_location:
    icon: mdi:battery-80
 
  - platform: mqtt
-   name: tesla_plugged_in
-   state_topic: "teslamate/cars/1/plugged_in"
-   icon: mdi:ev-station
-
- - platform: mqtt
    name: tesla_charge_energy_added
    state_topic: "teslamate/cars/1/charge_energy_added"
-   unit_of_measurement: "kWh"
+   device_class: energy
+   unit_of_measurement: kWh
    icon: mdi:battery-charging
 
  - platform: mqtt
@@ -352,14 +299,10 @@ tesla_location:
    icon: mdi:battery-charging-100
 
  - platform: mqtt
-   name: tesla_charge_port_door_open
-   state_topic: "teslamate/cars/1/charge_port_door_open"
-   icon: mdi:ev-plug-tesla
-
- - platform: mqtt
    name: tesla_charger_actual_current
    state_topic: "teslamate/cars/1/charger_actual_current"
-   unit_of_measurement: "A"
+   device_class: current
+   unit_of_measurement: A
    icon: mdi:lightning-bolt
 
  - platform: mqtt
@@ -370,13 +313,15 @@ tesla_location:
  - platform: mqtt
    name: tesla_charger_power
    state_topic: "teslamate/cars/1/charger_power"
+   device_class: power
+   unit_of_measurement: kW
    icon: mdi:lightning-bolt
-   unit_of_measurement: "kW"
 
  - platform: mqtt
    name: tesla_charger_voltage
    state_topic: "teslamate/cars/1/charger_voltage"
-   unit_of_measurement: "V"
+   device_class: voltage
+   unit_of_measurement: V
    icon: mdi:lightning-bolt
 
  - platform: mqtt
@@ -387,8 +332,122 @@ tesla_location:
  - platform: mqtt
    name: tesla_time_to_full_charge
    state_topic: "teslamate/cars/1/time_to_full_charge"
-   unit_of_measurement: "h"
+   unit_of_measurement: h
    icon: mdi:clock-outline
+```
+
+### binary_sensor.yaml (sensor: section of configuration.yaml)
+
+```yml title="binary_sensor.yaml"
+ - platform: template
+   sensors:
+    tesla_park_brake:
+      friendly_name: Parking Brake
+      icon_template: mdi:car-brake-parking
+      value_template: >-
+       {% if is_state('sensor.tesla_shift_state', 'P') %}
+         ON
+       {% else %}
+         OFF
+       {% endif %}
+
+ - platform: mqtt
+   name: tesla_healthy
+   state_topic: "teslamate/cars/1/healthy"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:heart-pulse
+
+ - platform: mqtt
+   name: tesla_update_available
+   state_topic: "teslamate/cars/1/update_available"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:alarm
+ 
+ - platform: mqtt
+   name: tesla_locked
+   device_class: lock
+   state_topic: "teslamate/cars/1/locked"
+   payload_on: "false"
+   payload_off: "true"
+
+ - platform: mqtt
+   name: tesla_sentry_mode
+   state_topic: "teslamate/cars/1/sentry_mode"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:cctv
+
+ - platform: mqtt
+   name: tesla_windows_open
+   device_class: window
+   state_topic: "teslamate/cars/1/windows_open"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:car-door
+
+ - platform: mqtt
+   name: tesla_doors_open
+   device_class: door
+   state_topic: "teslamate/cars/1/doors_open"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:car-door
+
+ - platform: mqtt
+   name: tesla_trunk_open
+   device_class: opening
+   state_topic: "teslamate/cars/1/trunk_open"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:car-side
+
+ - platform: mqtt
+   name: tesla_frunk_open
+   device_class: opening
+   state_topic: "teslamate/cars/1/frunk_open"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:car-side
+
+ - platform: mqtt
+   name: tesla_is_user_present
+   device_class: presence
+   state_topic: "teslamate/cars/1/is_user_present"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:human-greeting
+
+ - platform: mqtt
+   name: tesla_is_climate_on
+   state_topic: "teslamate/cars/1/is_climate_on"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:fan
+
+ - platform: mqtt
+   name: tesla_is_preconditioning
+   state_topic: "teslamate/cars/1/is_preconditioning"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:fan
+
+ - platform: mqtt
+   name: tesla_plugged_in
+   device_class: plug
+   state_topic: "teslamate/cars/1/plugged_in"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:ev-station
+
+ - platform: mqtt
+   name: tesla_charge_port_door_open
+   device_class: opening
+   state_topic: "teslamate/cars/1/charge_port_door_open"
+   payload_on: "true"
+   payload_off: "false"
+   icon: mdi:ev-plug-tesla
 ```
 
 ### ui-lovelace.yaml
@@ -396,10 +455,11 @@ tesla_location:
 The below is the Lovelace UI configuration used to make the example screenshot above. You will obviously want to configure this to your liking, however the example contains all of the sensors and values presented via MQTT and could be used as the basis of UI configuration.
 
 ```yml title="ui-lovelace.yaml"
+views:
   - path: car
     title: Car
     badges: []
-    icon: 'mdi:car-connected'
+    icon: mdi:car-connected
     cards:
       - type: vertical-stack
         cards:
@@ -409,31 +469,31 @@ The below is the Lovelace UI configuration used to make the example screenshot a
                 name: Battery Level
               - entity: sensor.tesla_state
                 name: Car State
-              - entity: sensor.tesla_plugged_in
+              - entity: binary_sensor.tesla_plugged_in
                 name: Plugged In
           - type: glance
             entities:
-              - entity: sensor.tesla_park_brake
+              - entity: binary_sensor.tesla_park_brake
                 name: Park Brake
-              - entity: sensor.tesla_sentry_mode
+              - entity: binary_sensor.tesla_sentry_mode
                 name: Sentry Mode
               - entity: sensor.tesla_speed
                 name: Speed
           - type: glance
             entities:
-              - entity: sensor.tesla_healthy
+              - entity: binary_sensor.tesla_healthy
                 name: Car Health
-              - entity: sensor.tesla_windows_open
+              - entity: binary_sensor.tesla_windows_open
                 name: Window Status
           - type: horizontal-stack
             cards:
               - type: button
-                entity: sensor.tesla_locked
+                entity: binary_sensor.tesla_locked
                 name: Charger Door
                 show_state: true
                 state:
                   - value: locked
-                    icon: 'mdi:lock'
+                    icon: mdi:lock
                     color: green
                     tap_action:
                       action: call-service
@@ -441,7 +501,7 @@ The below is the Lovelace UI configuration used to make the example screenshot a
                       service_data:
                         entity_id: lock.tesla_model_3_charger_door_lock
                   - value: unlocked
-                    icon: 'mdi:lock-open'
+                    icon: mdi:lock-open
                     color: red
                     tap_action:
                       action: call-service
@@ -454,7 +514,7 @@ The below is the Lovelace UI configuration used to make the example screenshot a
                 show_state: true
                 state:
                   - value: locked
-                    icon: 'mdi:lock'
+                    icon: mdi:lock
                     color: green
                     tap_action:
                       action: call-service
@@ -462,7 +522,7 @@ The below is the Lovelace UI configuration used to make the example screenshot a
                       service_data:
                         entity_id: lock.tesla_model_3_door_lock
                   - value: unlocked
-                    icon: 'mdi:lock-open'
+                    icon: mdi:lock-open
                     color: red
                     tap_action:
                       action: call-service
@@ -486,11 +546,11 @@ The below is the Lovelace UI configuration used to make the example screenshot a
             name: Status
           - entity: sensor.tesla_since
             name: Last Status Change
-          - entity: sensor.tesla_healthy
+          - entity: binary_sensor.tesla_healthy
             name: Logger Healthy
           - entity: sensor.tesla_version
             name: Software Version
-          - entity: sensor.tesla_update_available
+          - entity: binary_sensor.tesla_update_available
             name: Available Update Status
           - entity: sensor.tesla_update_version
             name: Available Update Version
@@ -524,27 +584,27 @@ The below is the Lovelace UI configuration used to make the example screenshot a
             name: Elevation (m)
           - entity: sensor.tesla_elevation_ft
             name: Elevation (ft)
-          - entity: sensor.tesla_locked
+          - entity: binary_sensor.tesla_locked
             name: Locked
-          - entity: sensor.tesla_sentry_mode
+          - entity: binary_sensor.tesla_sentry_mode
             name: Sentry Mode Enabled
-          - entity: sensor.tesla_windows_open
+          - entity: binary_sensor.tesla_windows_open
             name: Windows Open
-          - entity: sensor.tesla_doors_open
+          - entity: binary_sensor.tesla_doors_open
             name: Doors Open
-          - entity: sensor.tesla_trunk_open
+          - entity: binary_sensor.tesla_trunk_open
             name: Trunk Open
-          - entity: sensor.tesla_frunk_open
+          - entity: binary_sensor.tesla_frunk_open
             name: Frunk Open
-          - entity: sensor.tesla_is_user_present
+          - entity: binary_sensor.tesla_is_user_present
             name: User Present
-          - entity: sensor.tesla_is_climate_on
+          - entity: binary_sensor.tesla_is_climate_on
             name: Climate On
           - entity: sensor.tesla_inside_temp
             name: Inside Temperature
           - entity: sensor.tesla_outside_temp
             name: Outside Temperature
-          - entity: sensor.tesla_is_preconditioning
+          - entity: binary_sensor.tesla_is_preconditioning
             name: Preconditioning
           - entity: sensor.tesla_odometer
             name: Odometer
@@ -566,13 +626,13 @@ The below is the Lovelace UI configuration used to make the example screenshot a
             name: Battery Level
           - entity: sensor.tesla_usable_battery_level
             name: Usable Battery Level
-          - entity: sensor.tesla_plugged_in
+          - entity: binary_sensor.tesla_plugged_in
             name: Plugged In
           - entity: sensor.tesla_charge_energy_added
             name: Charge Energy Added
           - entity: sensor.tesla_charge_limit_soc
             name: Charge Limit
-          - entity: sensor.tesla_charge_port_door_open
+          - entity: binary_sensor.tesla_charge_port_door_open
             name: Charge Port Door Open
           - entity: sensor.tesla_charger_actual_current
             name: Charger Current
@@ -586,7 +646,6 @@ The below is the Lovelace UI configuration used to make the example screenshot a
             name: Scheduled Charging Start Time
           - entity: sensor.tesla_time_to_full_charge
             name: Time To Full Charge
-
 ```
 
 ## Useful Automations

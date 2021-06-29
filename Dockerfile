@@ -1,4 +1,6 @@
-FROM elixir:1.11.4 AS builder
+FROM elixir:1.12 AS builder
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get update && apt-get install -y --no-install-recommends nodejs
@@ -20,8 +22,8 @@ COPY assets/package.json assets/package-lock.json ./assets/
 RUN npm ci --prefix ./assets --progress=false --no-audit --loglevel=error
 
 COPY assets assets
-RUN npm run deploy --prefix ./assets
-RUN mix phx.digest
+RUN npm run deploy --prefix ./assets && \
+    mix phx.digest
 
 COPY lib lib
 COPY priv/repo/migrations priv/repo/migrations
@@ -41,21 +43,22 @@ ENV LANG=C.UTF-8 \
     SRTM_CACHE=/opt/app/.srtm_cache \
     HOME=/opt/app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \ 
-    libodbc1  \
-    libsctp1  \
-    libssl1.1  \
-    netcat \
-    tini  \
-    tzdata 
-
-RUN addgroup --gid 10001 --system nonroot && \ 
-    adduser  --uid 10000 --system --ingroup nonroot --home /home/nonroot nonroot
-
 WORKDIR $HOME
-RUN chown -R nonroot:nonroot .
-USER nonroot:nonroot
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libodbc1  \
+        libsctp1  \
+        libssl1.1  \
+        libstdc++6 \
+        netcat \
+        tini  \
+        tzdata && \
+    rm -rf /var/lib/apt/lists/* && \
+    addgroup --gid 10001 --system nonroot && \
+    adduser  --uid 10000 --system --ingroup nonroot --home /home/nonroot nonroot && \
+    chown -R nonroot:nonroot .
+
+USER nonroot:nonroot
 COPY --chown=nonroot:nonroot entrypoint.sh /
 COPY --from=builder --chown=nonroot:nonroot /opt/built .
 RUN mkdir $SRTM_CACHE
