@@ -30,9 +30,9 @@ defmodule TeslaMateWeb.SignInLiveTest do
              {"button",
               [
                 {"class", _},
+                {"disabled", "disabled"},
                 {"phx-disable-with", "Saving..."},
-                {"type", "submit"},
-                {"disabled", "disabled"}
+                {"type", "submit"}
               ], ["Sign in"]}
            ] = doc |> Floki.find("[type=submit]")
   end
@@ -58,7 +58,7 @@ defmodule TeslaMateWeb.SignInLiveTest do
     render_change(view, :validate, %{credentials: %{email: "$email", password: "$password"}})
     render_submit(view, :sign_in, %{})
 
-    assert_receive {ApiMock, :sign_in_callback, "$email", "$password"}
+    assert_receive {ApiMock, :sign_in, "$email", "$password"}
 
     assert_redirect(view, "/", 1000)
   end
@@ -67,9 +67,10 @@ defmodule TeslaMateWeb.SignInLiveTest do
   test "signs in with captcha", %{conn: conn} do
     assert {:ok, view, _html} = live(conn, "/sign_in")
 
-    render_change(view, :validate, %{
-      credentials: %{email: "captcha", password: "$password", captcha: "ABCD3f"}
-    })
+    render_change(view, :validate, %{credentials: %{email: "captcha", password: "$password"}})
+    render_submit(view, :sign_in, %{})
+
+    render_change(view, :validate, %{captcha: %{code: "ABCD3f"}})
 
     doc =
       view
@@ -77,9 +78,10 @@ defmodule TeslaMateWeb.SignInLiveTest do
       |> Floki.parse_document!()
 
     assert [{"span", _, [{"svg", _, []}]}] = Floki.find(doc, "#captcha")
-    assert ["ABCD3f"] == Floki.attribute(doc, "#credentials_captcha", "value")
+    assert ["ABCD3f"] == Floki.attribute(doc, "#captcha_code", "value")
 
     render_submit(view, :sign_in, %{})
+
     assert_receive {ApiMock, :sign_in_callback, "captcha", "$password", "ABCD3f"}
     assert_redirect(view, "/", 1000)
   end
@@ -88,13 +90,13 @@ defmodule TeslaMateWeb.SignInLiveTest do
   test "signs in with second factor", %{conn: conn} do
     assert {:ok, view, _html} = live(conn, "/sign_in")
 
-    render_change(view, :validate, %{
-      credentials: %{email: "mfa", password: "$password", captcha: "$captcha"}
-    })
-
+    render_change(view, :validate, %{credentials: %{email: "$email", password: "$password"}})
     render_submit(view, :sign_in, %{})
 
-    assert_receive {ApiMock, :sign_in_callback, "mfa", "$password", "$captcha"}
+    render_change(view, :validate, %{captcha: %{code: "mfa"}})
+    render_submit(view, :sign_in, %{})
+
+    assert_receive {ApiMock, :sign_in_callback, "$email", "$password", "mfa"}
 
     assert [
              {"option", [{"value", "000"}], ["Device #1"]},
@@ -112,13 +114,16 @@ defmodule TeslaMateWeb.SignInLiveTest do
 
     assert [
              {"option", [{"value", "000"}], ["Device #1"]},
-             {"option", [{"value", "111"}, {"selected", "selected"}], ["Device #2"]}
+             {"option", [{"selected", "selected"}, {"value", "111"}], ["Device #2"]}
            ] == Floki.find(doc, "#mfa_device_id option")
 
     assert "12345" ==
              doc |> Floki.find("#mfa_passcode") |> Floki.attribute("value") |> Floki.text()
 
-    assert [{"div", _, [{"select", [{"id", "mfa_device_id"} | _], _options}]}] =
+    assert [
+             {"div", _,
+              [{"select", [{"disabled", "disabled"}, {"id", "mfa_device_id"} | _], _options}]}
+           ] =
              view
              |> render_change(:validate, %{mfa: %{device_id: "111", passcode: "123456"}})
              |> Floki.parse_document!()

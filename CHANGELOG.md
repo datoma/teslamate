@@ -1,5 +1,85 @@
 # Changelog
 
+## [1.24.2] - 2021-09-29
+
+### Improvements and Bug Fixes
+
+- Discard stale data originating from the Tesla Streaming API
+- Broadcast offline state via MQTT when car goes offline while driving
+
+#### Dashboards
+
+- Updates and Timeline: Link to [notateslaapp.com](https://www.notateslaapp.com/software-updates/history/) for release notes
+
+## [1.24.1] - 2021-09-29
+
+- Update error message that is shown if reCAPTCHA is required
+- Update Erlang/OTP version to [prevent possible outages due to DST Root CA expiry on Sep 30th](https://elixirforum.com/t/psa-preventing-outages-due-to-dst-root-ca-expiry-on-sep-30th/42247)
+
+**⚠️ NOTE:** Tesla have tightened the captcha security once again and now require Google reCAPTCHA to generate API tokens. reCAPTCHA is implemented in a way that makes it impossible to bypass for applications like TeslaMate. There are third-party services that offer to fill these captchas (by having humans solve them manually), but they're slow and can be pricey if you're making a large a mount of requests.
+
+So if you are having issues signing in to your Tesla account via TeslaMate, the only remaining **workaround** right now is to sign in using `existing API tokens` (there is a button on the TeslaMate sign-in form). There are multiple apps available to securely generate access tokens yourself, for example:
+
+- [Auth app for Tesla (iOS)](https://apps.apple.com/us/app/auth-app-for-tesla/id1552058613#?platform=iphone)
+- [Tesla Tokens (Android)](https://play.google.com/store/apps/details?id=net.leveugle.teslatokens)
+- [Tesla Auth (macOS, Linux)](https://github.com/adriankumpf/tesla_auth)
+
+Users who are already signed in in do not have to worry about it. TeslaMate will continue to be able to access the Tesla API.
+
+## [1.24.0] - 2021-08-31
+
+### Improvements and Bug Fixes
+
+- Tesla have once again made changes to the login: TeslaMate can now handle a delayed captcha that first appears after submitting the login form …
+- Handle Tesla OwnerAPI errors returned by streaming API
+- Lay the groundwork for the ability to customize the displayed order of vehicles ([#1904](https://github.com/adriankumpf/teslamate/pull/1904) by [leewillis77](https://github.com/leewillis77))
+  - The order can currently be customized by manually updating the `display_priority` column in the `cars` database table
+
+#### Dashboards
+
+- Charging Stats: Use the full range of colors in the heatmap ([#1821](https://github.com/adriankumpf/teslamate/pull/1821) by [dyxyl](https://github.com/dyxyl))
+- Projected Range: Change right y-axis battery level range max from 200% to 100% ([#1840](https://github.com/adriankumpf/teslamate/pull/1840) by [toneus](https://github.com/toneus))
+- Timeline: Fix for missing drives and add links to the Action column ([1818](https://github.com/adriankumpf/teslamate/pull/1818) and [#1872](https://github.com/adriankumpf/teslamate/pull/1872) by [DrMichael](https://github.com/DrMichael))
+- Charge Level: Fix diagram glitch ([#1936](https://github.com/adriankumpf/teslamate/pull/1936) by [DrMichael](https://github.com/DrMichael))
+
+#### Translations
+
+- Add Japanese translation ([#1909](https://github.com/adriankumpf/teslamate/pull/1909) by [kuma](https://github.com/kuma))
+
+#### Documentation
+
+- Add a note about RAM needed after having issues, also a small clarification on where to place the .env file in the advanced guide ([#1857](https://github.com/adriankumpf/teslamate/pull/1857) by [billerby](https://github.com/billerby))
+- Add note with custom TM_DB_USER when backing up ([#1931](https://github.com/adriankumpf/teslamate/pull/1931) by [kyleawayan](https://github.com/kyleawayan))
+- Advanced installation with Traefik: Update Grafana rule to limit to TeslaMate host ([#1937](https://github.com/adriankumpf/teslamate/pull/1937) by [benoitm974](https://github.com/benoitm974))
+
+## [1.23.7] - 2021-07-16
+
+### Improvements and Bug Fixes
+
+- Since Tesla have once again made changes to the login with captcha, this version fixes the problems caused by it
+- Update permissions to the Grafana plugin directory ([#1814](https://github.com/adriankumpf/teslamate/pull/1814) by [letienne](https://github.com/letienne))
+
+#### Documentation
+
+- Fix heading of the Home Assistant binary_sensor config ([#1756](https://github.com/adriankumpf/teslamate/pull/1756) by [mrzeldaguy](https://github.com/mrzeldaguy))
+
+## [1.23.6] - 2021-07-08
+
+### Improvements and Bug Fixes
+
+- Disable sign-in button if captcha code is missing
+- Fix login for Chinese accounts
+
+## [1.23.5] - 2021-07-08
+
+### Improvements and Bug Fixes
+
+- Fix login with captcha
+
+#### Dashboards
+
+- Timeline: Make added kWh more accurate
+
 ## [1.23.4] - 2021-06-18
 
 ### Improvements and Bug Fixes
@@ -10,7 +90,7 @@
 - Projected Range: Prevent division by zero ([#1678](https://github.com/adriankumpf/teslamate/pull/1678) by [Dulanic](https://github.com/Dulanic))
 - Updates / States / Stastistics: Use local browser time ([#1685](https://github.com/adriankumpf/teslamate/pull/1685) by [Ed-M72](https://github.com/Ed-M72))
 - Charge Level: Simplify database query ([#1693](https://github.com/adriankumpf/teslamate/pull/1693) by [Dulanic](https://github.com/Dulanic))
-- Timeline: Add new category `Missing` and other some adjustments ([#1708](https://github.com/adriankumpf/teslamate/pull/1708) by [DrMichael](https://github.com/DrMichael))
+- Timeline: Add new category `Missing` and some other adjustments ([#1708](https://github.com/adriankumpf/teslamate/pull/1708) by [DrMichael](https://github.com/DrMichael))
 - Timeline: Fix missing datasources ([#1730](https://github.com/adriankumpf/teslamate/pull/1730) by [nickbock](https://github.com/nickbock))
 - Bump Grafana to 7.5.8 (Docker image)
 
@@ -1311,6 +1391,12 @@ New users need to sign in via the web interface.
 
 ## [1.0.0] - 2019-07-25
 
+[1.24.2]: https://github.com/adriankumpf/teslamate/compare/v1.24.1...v1.24.2
+[1.24.1]: https://github.com/adriankumpf/teslamate/compare/v1.24.0...v1.24.1
+[1.24.0]: https://github.com/adriankumpf/teslamate/compare/v1.23.7...v1.24.0
+[1.23.7]: https://github.com/adriankumpf/teslamate/compare/v1.23.6...v1.23.7
+[1.23.6]: https://github.com/adriankumpf/teslamate/compare/v1.23.5...v1.23.6
+[1.23.5]: https://github.com/adriankumpf/teslamate/compare/v1.23.4...v1.23.5
 [1.23.4]: https://github.com/adriankumpf/teslamate/compare/v1.23.3...v1.23.4
 [1.23.3]: https://github.com/adriankumpf/teslamate/compare/v1.23.2...v1.23.3
 [1.23.2]: https://github.com/adriankumpf/teslamate/compare/v1.23.1...v1.23.2

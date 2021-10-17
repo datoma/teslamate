@@ -87,6 +87,11 @@ defmodule TeslaApi.Stream do
     {:close, %State{state | timeouts: t + 1}}
   end
 
+  def handle_info({:ssl, _, _} = msg, state) do
+    Logger.warn("Received unexpected message: #{inspect(msg)}")
+    {:ok, state}
+  end
+
   def handle_info(:exit, _state) do
     exit(:normal)
   end
@@ -147,7 +152,14 @@ defmodule TeslaApi.Stream do
         {:ok, state}
 
       {:ok, %{"msg_type" => "data:error", "tag" => ^tag, "error_type" => "client_error"} = msg} ->
-        raise "Client Error: #{inspect(msg)}"
+        case msg do
+          %{"value" => "owner_api error:" <> _ = error} ->
+            Logger.warn("Streaming API Client Error: #{error}")
+            {:close, state}
+
+          _ ->
+            raise "Client Error: #{inspect(msg)}"
+        end
 
       {:ok, %{"msg_type" => "data:error", "tag" => ^tag, "error_type" => type, "value" => v}} ->
         Logger.error("Error #{inspect(type)}: #{v}")
