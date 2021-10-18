@@ -15,6 +15,10 @@
     docker push datoma/teslamate:1.21
     docker push datoma/teslamate:latest
 
+## build on Mac M1
+    docker buildx build --platform linux/amd64,linux/arm64 --push -t datoma/jenkins-master:latest .
+    docker buildx build --platform linux/amd64,linux/arm64 --push -t datoma/jenkins-master:1.24 .
+
 ## push to artifactory
     docker tag datoma/teslamate:latest datoma.jfrog.io/docker-local/teslamate:latest
     docker tag datoma/teslamate:latest datoma.jfrog.io/docker-local/teslamate:1.21

@@ -17,9 +17,9 @@ pipeline {
     ANCHORE_URL = 'https://anchore.blackboards.de'
     ANCHORE_CREDENTIALS = 'anchore'
 
-    TRIVY_VERSION = 'datoma/trivy-server:0.16.0'
-    DOCKLE_VERSION = 'datoma/dockle:0.3.11'
-    HADOLINT_VERSION = 'datoma/hadolint:1.21.0'
+    TRIVY_VERSION = "datoma/trivy-server:${jenkins_trivyserver_version}"
+    DOCKLE_VERSION = "datoma/dockle:${jenkins_dockle_version}"
+    HADOLINT_VERSION = "datoma/hadolint:${jenkins_hadolint_version}"
   }
 
   parameters{
@@ -72,7 +72,7 @@ pipeline {
 
     stage('create branch') {
       when {
-        expression { 
+        expression {
           params.CREATE_RELEASE_BRANCH == true
         }
       }
@@ -94,7 +94,7 @@ pipeline {
         }
       }
     }
-    
+
     stage('Tagging the image') {
       steps {
         script {
@@ -155,7 +155,7 @@ pipeline {
 
     stage('Deploy Images to Dockerhub') {
       when {
-        expression { 
+        expression {
           params.PUSH_DOCKER == true
         }
       }
@@ -183,7 +183,7 @@ pipeline {
 
     stage('Tagging Artifactory images') {
       when {
-        expression { 
+        expression {
           params.PUSH_ARTIFACTORY == true
         }
       }
@@ -197,7 +197,7 @@ pipeline {
 
     stage('Push images to Artifactory') {
       when {
-        expression { 
+        expression {
           params.PUSH_ARTIFACTORY == true
         }
       }
@@ -222,7 +222,7 @@ pipeline {
         }
       }
     }
-    
+
     stage('Anchore Test') {
       parallel {
         stage('anchore') {
@@ -235,15 +235,14 @@ pipeline {
         }
       }
     }
-    
+
   }
 
   post {
     always {
       archiveArtifacts artifacts: '*.txt', onlyIfSuccessful: true
-      sh "docker rmi ${DOCKERHUB_IMAGE_NAME}:latest"
-      //sh "docker rmi ${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
-      sh 'docker rmi $(docker images --filter "dangling=true" -q --no-trunc) 2>/dev/null'
+      sh "docker rmi ${DOCKERHUB_IMAGE_NAME}:latest || true"
+      sh "docker rmi ${DOCKERHUB_IMAGE_NAME}:${DOCKER_IMAGE_TAG} || true"
     }
     success {
       script {
