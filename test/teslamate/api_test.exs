@@ -302,7 +302,10 @@ defmodule TeslaMate.ApiTest do
       end
     end
 
-    test ":not_signed_in", %{test: name} do
+    @tag :capture_log
+    test "signs out if the API repeatedly returns a 401 response", %{test: name} do
+      parent_pid = self()
+
       vehicle_mock =
         {TeslaApi.Vehicle, [],
          [
@@ -317,20 +320,46 @@ defmodule TeslaMate.ApiTest do
            end
          ]}
 
-      with_mocks [auth_mock(self()), vehicle_mock] do
+      auth_mock =
+        {TeslaApi.Auth, [],
+         [
+           login: fn _email, _password ->
+             {:ok,
+              %TeslaApi.Auth{token: "$token", refresh_token: "$token", expires_in: 10_000_000}}
+           end,
+           refresh: fn
+             auth ->
+               send(parent_pid, {TeslaApi.Auth, {:refresh, auth}})
+               {:error, %TeslaApi.Error{reason: :induced_error, message: "foo"}}
+           end
+         ]}
+
+      with_mocks [auth_mock, vehicle_mock] do
         :ok = start_api(name, start_auth: false)
 
-        assert {:ok, {:captcha, "", callback}} = Api.sign_in(name, {@email, @password})
-        assert :ok == callback.("$captcha")
-        assert {:error, :not_signed_in} = Api.list_vehicles(name)
+        refute_receive _
 
-        assert {:ok, {:captcha, "", callback}} = Api.sign_in(name, {@email, @password})
-        assert :ok == callback.("$captcha")
-        assert {:error, :not_signed_in} = Api.get_vehicle(name, 0)
+        for api_fn <- [
+              fn -> Api.list_vehicles(name) end,
+              fn -> Api.get_vehicle(name, 0) end,
+              fn -> Api.get_vehicle_with_state(name, 0) end
+            ] do
+          # Sign in …
+          assert :ok = Api.sign_in(name, {@email, @password})
 
-        assert {:ok, {:captcha, "", callback}} = Api.sign_in(name, {@email, @password})
-        assert :ok == callback.("$captcha")
-        assert {:error, :not_signed_in} = Api.get_vehicle_with_state(name, 0)
+          # retry until the fuse metls and we're signed out
+          assert :ok ==
+                   Enum.reduce_while(1..10, nil, fn _, _ ->
+                     case api_fn.() do
+                       {:error, :unauthorized} ->
+                         assert_receive {TeslaApi.Auth, {:refresh, _}}
+                         {:cont, nil}
+
+                       {:error, :not_signed_in} ->
+                         {:halt, :ok}
+                     end
+                   end)
+        end
       end
     end
 

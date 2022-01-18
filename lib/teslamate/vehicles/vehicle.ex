@@ -55,6 +55,7 @@ defmodule TeslaMate.Vehicles.Vehicle do
               "model3" <> _ -> "3"
               "modelx" <> _ -> "X"
               "modely" <> _ -> "Y"
+              "lychee" -> "S"
               _ -> nil
             end
           end
@@ -344,7 +345,7 @@ defmodule TeslaMate.Vehicles.Vehicle do
         end
 
       {:error, :not_signed_in} ->
-        Logger.error("Error / unauthorized")
+        Logger.error("Error / not_signed_in", car_id: data.car.id)
 
         :ok = fuse_name(:api_error, data.car.id) |> :fuse.circuit_disable()
 
@@ -368,7 +369,7 @@ defmodule TeslaMate.Vehicles.Vehicle do
       {:error, reason} ->
         Logger.error("Error / #{inspect(reason)}", car_id: data.car.id)
 
-        unless reason == :timeout do
+        unless reason in [:timeout, :unauthorized] do
           :ok = fuse_name(:api_error, data.car.id) |> :fuse.melt()
         end
 
