@@ -13,6 +13,7 @@ defmodule TeslaMate.Vehicles.Vehicle.Summary do
     odometer shift_state charge_port_door_open time_to_full_charge charger_phases
     charger_actual_current charger_voltage version update_available update_version is_user_present geofence
     model trim_badging exterior_color wheel_type spoiler_type trunk_open frunk_open elevation power
+    charge_current_request charge_current_request_max tpms_pressure_fl tpms_pressure_fr tpms_pressure_rl tpms_pressure_rr
   )a
 
   def into(nil, %{state: :start, healthy?: healthy?, car: car}) do
@@ -24,7 +25,7 @@ defmodule TeslaMate.Vehicles.Vehicle.Summary do
       spoiler_type: get_car_attr(car, :spoiler_type),
       wheel_type: get_car_attr(car, :wheel_type),
       model: get_car_attr(car, :model),
-      car: put_friendly_name(car)
+      car: car
     }
   end
 
@@ -50,24 +51,9 @@ defmodule TeslaMate.Vehicles.Vehicle.Summary do
         spoiler_type: get_car_attr(car, :spoiler_type),
         wheel_type: get_car_attr(car, :wheel_type),
         model: get_car_attr(car, :model),
-        car: put_friendly_name(car)
+        car: car
     }
   end
-
-  defp put_friendly_name(nil), do: nil
-
-  defp put_friendly_name(%Car{} = car) do
-    %Car{car | friendly_name: friendly_name(car.model, car.trim_badging)}
-  end
-
-  defp friendly_name("3", "P74D"), do: "LR AWD Performance"
-  defp friendly_name("3", "74D"), do: "LR AWD"
-  defp friendly_name("3", "74"), do: "LR"
-  defp friendly_name("3", "62"), do: "MR"
-  defp friendly_name("3", "50"), do: "SR+"
-  defp friendly_name("Y", "P74D"), do: "LR AWD Performance"
-  defp friendly_name("Y", "74D"), do: "LR AWD"
-  defp friendly_name(_model, _trim), do: nil
 
   defp format_state({:driving, {:offline, _}, _id}), do: :offline
   defp format_state({:driving, _state, _id}), do: :driving
@@ -96,9 +82,9 @@ defmodule TeslaMate.Vehicles.Vehicle.Summary do
       heading: get_in_struct(vehicle, [:drive_state, :heading]),
 
       # Charge State
-      plugged_in: plugged_in(vehicle),
       battery_level: charge(vehicle, :battery_level),
-      usable_battery_level: charge(vehicle, :usable_battery_level),
+      charge_current_request: charge(vehicle, :charge_current_request),
+      charge_current_request_max: charge(vehicle, :charge_current_request_max),
       charge_energy_added: charge(vehicle, :charge_energy_added),
       charge_limit_soc: charge(vehicle, :charge_limit_soc),
       charge_port_door_open: charge(vehicle, :charge_port_door_open),
@@ -108,10 +94,12 @@ defmodule TeslaMate.Vehicles.Vehicle.Summary do
       charger_voltage: charge(vehicle, :charger_voltage),
       est_battery_range_km: charge(vehicle, :est_battery_range) |> miles_to_km(2),
       ideal_battery_range_km: charge(vehicle, :ideal_battery_range) |> miles_to_km(2),
+      plugged_in: plugged_in(vehicle),
       rated_battery_range_km: charge(vehicle, :battery_range) |> miles_to_km(2),
-      time_to_full_charge: charge(vehicle, :time_to_full_charge),
       scheduled_charging_start_time:
         charge(vehicle, :scheduled_charging_start_time) |> to_datetime(),
+      time_to_full_charge: charge(vehicle, :time_to_full_charge),
+      usable_battery_level: charge(vehicle, :usable_battery_level),
 
       # Climate State
       is_climate_on: get_in_struct(vehicle, [:climate_state, :is_climate_on]),
@@ -130,7 +118,11 @@ defmodule TeslaMate.Vehicles.Vehicle.Summary do
       is_user_present: get_in_struct(vehicle, [:vehicle_state, :is_user_present]),
       version: version(vehicle),
       update_available: update_available(vehicle),
-      update_version: update_version(vehicle)
+      update_version: update_version(vehicle),
+      tpms_pressure_fl: get_in_struct(vehicle, [:vehicle_state, :tpms_pressure_fl]),
+      tpms_pressure_fr: get_in_struct(vehicle, [:vehicle_state, :tpms_pressure_fr]),
+      tpms_pressure_rl: get_in_struct(vehicle, [:vehicle_state, :tpms_pressure_rl]),
+      tpms_pressure_rr: get_in_struct(vehicle, [:vehicle_state, :tpms_pressure_rr])
     }
   end
 

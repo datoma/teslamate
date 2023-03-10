@@ -24,7 +24,7 @@ Source: [postgresql.org/download](https://www.postgresql.org/download/)
 </details>
 
 <details>
-  <summary>Elixir (v1.11+)</summary>
+  <summary>Elixir (v1.12+)</summary>
 
 ```bash
 wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && sudo dpkg -i erlang-solutions_2.0_all.deb
@@ -55,6 +55,7 @@ Install the required Grafana plugins as well:
 
 ```bash
 sudo grafana-cli plugins install pr0ps-trackmap-panel 2.1.2
+sudo grafana-cli plugins install natel-plotly-panel 0.0.7
 sudo grafana-cli --pluginUrl https://github.com/panodata/panodata-map-panel/releases/download/0.16.0/panodata-map-panel-0.16.0.zip plugins install grafana-worldmap-panel-ng
 sudo systemctl restart grafana-server
 ```
@@ -168,6 +169,7 @@ Environment="LANG=en_US.UTF-8"
 Environment="LC_CTYPE=en_US.UTF-8"
 Environment="TZ=Europe/Berlin"
 Environment="PORT=4000"
+Environment="ENCRYPTION_KEY=your_secure_encryption_key_here"
 Environment="DATABASE_USER=teslamate"
 Environment="DATABASE_PASS=#your secure password!
 Environment="DATABASE_NAME=teslamate"
@@ -211,6 +213,7 @@ You should at least substitute the following details:
 - `TESLAMATEPATH` should be the path that you ran the `git clone` within.
 
 ```
+export ENCRYPTION_KEY="your_secure_encryption_key_here"
 export DATABASE_USER="teslamate"
 export DATABASE_PASS="your_secure_password_here"
 export DATABASE_HOST="127.0.0.1"
@@ -228,6 +231,7 @@ $TESLAMATEPATH/_build/prod/rel/teslamate/bin/teslamate start
 The following command needs to be run once during the installation process in order to create the database schema for the TeslaMate installation:
 
 ```bash
+export ENCRYPTION_KEY="your_secure_encryption_key_here"
 export DATABASE_USER="teslamate"
 export DATABASE_PASS="your_secure_password_here"
 export DATABASE_HOST="127.0.0.1"

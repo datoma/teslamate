@@ -80,6 +80,9 @@ defmodule Util do
   end
 end
 
+config :teslamate,
+  default_geofence: System.get_env("DEFAULT_GEOFENCE")
+
 config :teslamate, TeslaMate.Repo,
   username: Util.fetch_env!("DATABASE_USER", all: "postgres"),
   password: Util.fetch_env!("DATABASE_PASS", all: "postgres"),
@@ -121,3 +124,5 @@ if config_env() != :test do
 end
 
 config :teslamate, :srtm_cache, System.get_env("SRTM_CACHE", ".srtm_cache")
+
+config :teslamate, TeslaMate.Vault, key: Util.get_env("ENCRYPTION_KEY", test: "secret")

@@ -8,20 +8,20 @@
   "dependencies": {
     "@creativebulma/bulma-divider": "^1.1.0",
     "@creativebulma/bulma-tooltip": "^1.2.0",
-    "@geoman-io/leaflet-geoman-free": "^2.11.4",
-    "@mdi/font": "^6.5.95",
-    "bulma-switch": "^2.0.0",
-    "leaflet": "^1.7.1",
-    "leaflet-control-geocoder": "^2.3.0",
+    "@geoman-io/leaflet-geoman-free": "^2.13.1",
+    "@mdi/font": "^7.1.96",
+    "bulma-switch": "^2.0.4",
+    "leaflet": "^1.9.3",
+    "leaflet-control-geocoder": "^2.4.0",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
     "phoenix_live_view": "file:../deps/phoenix_live_view"
   },
   "devDependencies": {
-    "bulma": "^0.9.3",
-    "esbuild": "^0.14.10",
-    "esbuild-sass-plugin": "^2.0.0",
-    "sass": "^1.45.2"
+    "bulma": "^0.9.4",
+    "esbuild": "^0.16.17",
+    "esbuild-sass-plugin": "^2.4.5",
+    "sass": "^1.57.1"
   },
   "name": "assets"
 }

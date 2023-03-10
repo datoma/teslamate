@@ -30,7 +30,7 @@ defmodule TeslaMate.Vehicles.Vehicle do
   @asleep_interval 30
   @driving_interval 2.5
 
-  @drive_timout_min 15
+  @drive_timeout_min 15
 
   # Static
 
@@ -56,8 +56,25 @@ defmodule TeslaMate.Vehicles.Vehicle do
               "modelx" <> _ -> "X"
               "modely" <> _ -> "Y"
               "lychee" -> "S"
+              "tamarind" -> "X"
               _ -> nil
             end
+          end
+
+        marketing_name =
+          case {model, trim_badging, type} do
+            {"S", "100D", "lychee"} -> "LR"
+            {"S", "P100D", "lychee"} -> "Plaid"
+            {"3", "P74D", _} -> "LR AWD Performance"
+            {"3", "74D", _} -> "LR AWD"
+            {"3", "74", _} -> "LR"
+            {"3", "62", _} -> "MR"
+            {"3", "50", _} -> "SR+"
+            {"X", "100D", "tamarind"} -> "LR"
+            {"X", "P100D", "tamarind"} -> "Plaid"
+            {"Y", "P74D", _} -> "LR AWD Performance"
+            {"Y", "74D", _} -> "LR AWD"
+            {_model, _trim, _type} -> nil
           end
 
         {:ok,
@@ -65,6 +82,7 @@ defmodule TeslaMate.Vehicles.Vehicle do
            model: model,
            name: name,
            trim_badging: trim_badging,
+           marketing_name: marketing_name,
            exterior_color: exterior_color,
            spoiler_type: spoiler_type,
            wheel_type: wheel_type
@@ -301,7 +319,7 @@ defmodule TeslaMate.Vehicles.Vehicle do
       {:ok, %Vehicle{state: state} = vehicle} when state in ["offline", "asleep"] ->
         data =
           with %Data{last_response: nil} <- data do
-            {last_response, geofence} = restore_last_knwon_values(vehicle, data)
+            {last_response, geofence} = restore_last_known_values(vehicle, data)
             %Data{data | last_response: last_response, geofence: geofence}
           end
 
@@ -488,7 +506,8 @@ defmodule TeslaMate.Vehicles.Vehicle do
 
   #### Rest
 
-  def handle_event(:info, {:stream, :too_many_disconnects}, _state, data) do
+  def handle_event(:info, {:stream, msg}, _state, data)
+      when msg in [:too_many_disconnects, :tokens_expired] do
     Logger.info("Creating new connection … ", car_id: data.car.id)
 
     ref = Process.monitor(data.stream_pid)
@@ -900,7 +919,7 @@ defmodule TeslaMate.Vehicles.Vehicle do
     offline_since = parse_timestamp(last.drive_state.timestamp)
 
     case diff_seconds(DateTime.utc_now(), offline_since) / 60 do
-      min when min >= @drive_timout_min ->
+      min when min >= @drive_timeout_min ->
         timeout_drive(drive, data)
 
         {:next_state, {:driving, {:offline, last}, nil},
@@ -949,7 +968,7 @@ defmodule TeslaMate.Vehicles.Vehicle do
         {:next_state, :start, %Data{data | last_used: DateTime.utc_now()},
          {:next_event, :internal, {:update, {:online, now}}}}
 
-      not has_gained_range? and offline_min >= @drive_timout_min ->
+      not has_gained_range? and offline_min >= @drive_timeout_min ->
         unless is_nil(drv), do: timeout_drive(drv, data)
 
         {:next_state, :start, %Data{data | last_used: DateTime.utc_now()},
@@ -1106,7 +1125,7 @@ defmodule TeslaMate.Vehicles.Vehicle do
 
   # Private
 
-  defp restore_last_knwon_values(vehicle, data) do
+  defp restore_last_known_values(vehicle, data) do
     with %Vehicle{drive_state: nil, charge_state: nil, climate_state: nil} <- vehicle,
          %Log.Position{} = position <- call(data.deps.log, :get_latest_position, [data.car]) do
       drive = %Drive{
@@ -1242,7 +1261,11 @@ defmodule TeslaMate.Vehicles.Vehicle do
       is_front_defroster_on: vehicle.climate_state.is_front_defroster_on,
       battery_heater_on: vehicle.charge_state.battery_heater_on,
       battery_heater: vehicle.climate_state.battery_heater,
-      battery_heater_no_power: vehicle.climate_state.battery_heater_no_power
+      battery_heater_no_power: vehicle.climate_state.battery_heater_no_power,
+      tpms_pressure_fl: vehicle.vehicle_state.tpms_pressure_fl,
+      tpms_pressure_fr: vehicle.vehicle_state.tpms_pressure_fr,
+      tpms_pressure_rl: vehicle.vehicle_state.tpms_pressure_rl,
+      tpms_pressure_rr: vehicle.vehicle_state.tpms_pressure_rr
     }
 
     elevation =
@@ -1500,7 +1523,7 @@ defmodule TeslaMate.Vehicles.Vehicle do
 
           %Log.Update{version: last_vsn} when is_binary(last_vsn) ->
             if normalize_version(last_vsn) < normalize_version(vsn) do
-              Logger.info("Logged missing software udpate: #{vsn}", car_id: car.id)
+              Logger.info("Logged missing software update: #{vsn}", car_id: car.id)
 
               {:ok, _} =
                 call(data.deps.log, :insert_missed_update, [car, vsn, [date: parse_timestamp(ts)]])

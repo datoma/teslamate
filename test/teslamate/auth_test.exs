@@ -3,6 +3,11 @@ defmodule TeslaMate.AuthTest do
 
   alias TeslaMate.Auth
 
+  setup do
+    start_supervised!(TeslaMate.Vault)
+    :ok
+  end
+
   describe "tokens" do
     @valid_attrs %{refresh_token: "some refresh token", token: "some access token"}
     @update_attrs %{
@@ -11,7 +16,7 @@ defmodule TeslaMate.AuthTest do
     }
     @invalid_attrs %{refresh_token: nil, token: nil}
 
-    test "save/1 with valid data creates or updats the tokens" do
+    test "save/1 with valid data creates or updates the tokens" do
       assert Auth.get_tokens() == nil
 
       assert :ok = Auth.save(@valid_attrs)

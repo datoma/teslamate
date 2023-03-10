@@ -32,6 +32,7 @@ services:
     depends_on:
       - database
     environment:
+      - ENCRYPTION_KEY=${TM_ENCRYPTION_KEY}
       - DATABASE_USER=${TM_DB_USER}
       - DATABASE_PASS=${TM_DB_PASS}
       - DATABASE_NAME=${TM_DB_NAME}
@@ -61,7 +62,7 @@ services:
       - all
 
   database:
-    image: postgres:13
+    image: postgres:14
     restart: always
     environment:
       - POSTGRES_USER=${TM_DB_USER}
@@ -109,7 +110,7 @@ services:
       - mosquitto-data:/mosquitto/data
 
   proxy:
-    image: traefik:v2.4
+    image: traefik:v2.7
     restart: always
     command:
       - "--global.sendAnonymousUsage=false"
@@ -141,6 +142,7 @@ volumes:
 ### .env
 
 ```plaintext title=".env"
+TM_ENCRYPTION_KEY= #your secure key to encrypt your Tesla API tokens
 TM_DB_USER=teslamate
 TM_DB_PASS= #your secure password!
 TM_DB_NAME=teslamate
